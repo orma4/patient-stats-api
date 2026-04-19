@@ -41,10 +41,12 @@ Request tracking lives in an interceptor — it increments the counter after a s
 
 One thing I debated was where to put the `elevated readings` filter. Initially it was in the service after calling `findAll()`, but that means loading every reading into memory just to filter. I moved it to a `findElevated()` method on the repository so when this eventually hits a real database it becomes a `WHERE` clause instead.
 
-## Changes for a production real service
+## Suggested improvements for a production service
 
 **Persistence** - add a database (e.g. PostgreSQL or MongoDB) and swap the in-memory repositories for real implementations. The interfaces and injection tokens mean the service layer doesn't change at all.
 
 **Request tracking at scale** - the in-memory counter resets on restart and splits across multiple instances (if we run 2 servers, each has its own counter). A shared store like Redis with `INCR` would solve both problems and would be a one-file change in the infrastructure layer.
 
-**Pagination** — `findElevated()` still returns everything. With real data you'd add cursor-based pagination to that endpoint before anything else.
+**Pagination** - `findElevated()` still returns everything. With real data you'd add cursor-based pagination to that endpoint before anything else.
+
+**Authentication/Authorization** - the endpoints are currently open. A production service would need JWT or API key auth, especially since patient data is sensitive.
